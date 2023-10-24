@@ -1,26 +1,29 @@
 <?php
 
-namespace VendorName\Skeleton;
+namespace Apsonex\FilamentProducts;
 
-use Filament\Support\Assets\AlpineComponent;
-use Filament\Support\Assets\Asset;
-use Filament\Support\Assets\Css;
+use Livewire\Volt\Volt;
 use Filament\Support\Assets\Js;
-use Filament\Support\Facades\FilamentAsset;
-use Filament\Support\Facades\FilamentIcon;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Asset;
 use Illuminate\Filesystem\Filesystem;
-use Livewire\Features\SupportTesting\Testable;
-use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
+use Filament\Support\Facades\FilamentIcon;
+use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Assets\AlpineComponent;
+use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use VendorName\Skeleton\Commands\SkeletonCommand;
-use VendorName\Skeleton\Testing\TestsSkeleton;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
+use Apsonex\FilamentProducts\Testing\TestsFilamentProducts;
+use Apsonex\FilamentProducts\Commands\FilamentProductsCommand;
+use Apsonex\FilamentProducts\Livewire\PricingTable;
+use Livewire\Livewire;
 
-class SkeletonServiceProvider extends PackageServiceProvider
+class FilamentProductsServiceProvider extends PackageServiceProvider
 {
-    public static string $name = 'skeleton';
+    public static string $name = 'filament-products';
 
-    public static string $viewNamespace = 'skeleton';
+    public static string $viewNamespace = 'filament-products';
 
     public function configurePackage(Package $package): void
     {
@@ -31,12 +34,13 @@ class SkeletonServiceProvider extends PackageServiceProvider
          */
         $package->name(static::$name)
             ->hasCommands($this->getCommands())
+            ->hasRoutes(['web'])
             ->hasInstallCommand(function (InstallCommand $command) {
                 $command
                     ->publishConfigFile()
                     ->publishMigrations()
                     ->askToRunMigrations()
-                    ->askToStarRepoOnGitHub(':vendor_slug/:package_slug');
+                    ->askToStarRepoOnGitHub('apsonex/filament-products');
             });
 
         $configFileName = $package->shortName();
@@ -56,10 +60,15 @@ class SkeletonServiceProvider extends PackageServiceProvider
         if (file_exists($package->basePath('/../resources/views'))) {
             $package->hasViews(static::$viewNamespace);
         }
+
+        // Volt::mount([
+        //     base_path('vendor/apsonex/filament-products/resources/views/volt')
+        // ]);
     }
 
     public function packageRegistered(): void
     {
+        $this->app->singleton(\Apsonex\FilamentProducts\FilamentProducts::class, FilamentProducts::class);
     }
 
     public function packageBooted(): void
@@ -82,18 +91,20 @@ class SkeletonServiceProvider extends PackageServiceProvider
         if (app()->runningInConsole()) {
             foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
                 $this->publishes([
-                    $file->getRealPath() => base_path("stubs/skeleton/{$file->getFilename()}"),
-                ], 'skeleton-stubs');
+                    $file->getRealPath() => base_path("stubs/filament-products/{$file->getFilename()}"),
+                ], 'filament-products-stubs');
             }
         }
 
         // Testing
-        Testable::mixin(new TestsSkeleton());
+        Testable::mixin(new TestsFilamentProducts());
+
+        Livewire::component('filament-products.pricing-table', PricingTable::class);
     }
 
     protected function getAssetPackageName(): ?string
     {
-        return ':vendor_slug/:package_slug';
+        return 'apsonex/filament-products';
     }
 
     /**
@@ -102,9 +113,9 @@ class SkeletonServiceProvider extends PackageServiceProvider
     protected function getAssets(): array
     {
         return [
-            // AlpineComponent::make('skeleton', __DIR__ . '/../resources/dist/components/skeleton.js'),
-            Css::make('skeleton-styles', __DIR__ . '/../resources/dist/skeleton.css'),
-            Js::make('skeleton-scripts', __DIR__ . '/../resources/dist/skeleton.js'),
+            // AlpineComponent::make('filament-products', __DIR__ . '/../resources/dist/components/filament-products.js'),
+            // Css::make('filament-products-styles', __DIR__ . '/../resources/dist/filament-products.css'),
+            // Js::make('filament-products-scripts', __DIR__ . '/../resources/dist/filament-products.js'),
         ];
     }
 
@@ -114,7 +125,7 @@ class SkeletonServiceProvider extends PackageServiceProvider
     protected function getCommands(): array
     {
         return [
-            SkeletonCommand::class,
+            FilamentProductsCommand::class,
         ];
     }
 
@@ -123,7 +134,9 @@ class SkeletonServiceProvider extends PackageServiceProvider
      */
     protected function getIcons(): array
     {
-        return [];
+        return [
+            //
+        ];
     }
 
     /**
@@ -148,7 +161,7 @@ class SkeletonServiceProvider extends PackageServiceProvider
     protected function getMigrations(): array
     {
         return [
-            'create_skeleton_table',
+            'create_products_table',
         ];
     }
 }
