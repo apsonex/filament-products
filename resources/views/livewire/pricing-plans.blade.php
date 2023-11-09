@@ -104,15 +104,17 @@
                             <div class="pt-6 mt-6 border-t">
                                 <ul class="flex flex-col space-y-3">
                                     @foreach (collect($plan['features'])->sortBy('sort_order') as $feature)
-                                        <li
-                                            class="flex items-center justify-start text-gray-600"
-                                            @if (isset($feature['frequency']) && $feature['frequency'] === 'month') x-show="isAnnual === false"
-                                            @elseif(isset($feature['frequency']) && $feature['frequency'] === 'year')
-                                                x-show="isAnnual === true" @endif
-                                        >
-                                            <x-filament-products::icon.check class="w-5 h-5 mr-2 text-green-500" />
-                                            {{ $feature['label'] }}
-                                        </li>
+                                        @if(!isset($feature['hide']))
+                                            <li
+                                                class="flex items-center justify-start text-gray-600"
+                                                @if (isset($feature['frequency']) && $feature['frequency'] === 'month') x-show="isAnnual === false"
+                                                @elseif(isset($feature['frequency']) && $feature['frequency'] === 'year')
+                                                    x-show="isAnnual === true" @endif
+                                            >
+                                                <x-filament-products::icon.check class="w-5 h-5 mr-2 text-green-500" />
+                                                {{ $feature['label'] }}
+                                            </li>
+                                        @endif
                                     @endforeach
                                 </ul>
                             </div>
