@@ -104,7 +104,10 @@
                             <div class="pt-6 mt-6 border-t">
                                 <ul class="flex flex-col space-y-3">
                                     @foreach (collect($plan['features'])->sortBy('sort_order') as $feature)
-                                        @if(!isset($feature['hide']))
+
+                                        @if(isset($feature['hide']) && $feature['hide'] === true)
+                                            
+                                        @else
                                             <li
                                                 class="flex items-center justify-start text-gray-600"
                                                 @if (isset($feature['frequency']) && $feature['frequency'] === 'month') x-show="isAnnual === false"
